@@ -2,5 +2,5 @@
 
 
 void main() {
-	
+	pritnf("Hello Word");
 }	
