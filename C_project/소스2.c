@@ -6,7 +6,7 @@ typedef struct _studentList {
 	int id; //학번
 	char major[20]; //학과
 	char grade[4]; // 학점
-	int score; //평점
+	float score; //평점
 	struct _studentList *next;
 }studentList;
 
@@ -39,7 +39,7 @@ int main(void) {
 	
 }
 
-//0. 초기화
+//0. 초기화 연결리스트 성공
 void init() {
 	FILE *fp = NULL;
 	errno_t err;
@@ -59,22 +59,34 @@ void init() {
 	studentList *dummy = (studentList *)malloc(sizeof(studentList));
 	head = dummy;
 	tail = dummy;
-	while (1) {
+	while (!feof(fp)) {
 		ptr = (studentList *)malloc(sizeof(studentList));
 		if (ptr == NULL)
 		{
 			printf("메모리 할당오류! \n");
 			exit(1);
 		}
-		fscanf_s("%s", ptr->name);
-		printf("%s", ptr->name);
-		break;
+		fscanf_s(fp,"%s %d", ptr->name,sizeof(ptr->name), &ptr->id, sizeof(ptr->id));
+		printf("%s %d ", ptr->name, ptr->id);
+		fscanf_s(fp, "%s %s", ptr->major, sizeof(ptr->major), ptr->grade, sizeof(ptr->grade)); //저도 왜이렇게 써야하는지 모르겠는데 fscanf_s가 2개만 인자를 받네요;;
+		printf("%s %s ", ptr->major, ptr->grade);
+		fscanf_s(fp, "%f", &ptr->score, sizeof(ptr->score));
+		printf("%0.1f", ptr->score);
+
+		printf("\n\n");
+
+		tail->next = ptr;
+
+		ptr->next = NULL;
+		tail = ptr;
+		
 	}
 	fclose(fp);
 
 }
-
-
+//, ptr->major, ptr->grade, ptr->score
+//, ptr->major,
+//sizeof(ptr->major), ptr->grade, sizeof(ptr->grade), &ptr->score, sizeof(ptr->score)
 
 //1. 읽기(연결리스트 초기화)
 void readList() {
