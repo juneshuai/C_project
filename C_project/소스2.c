@@ -163,7 +163,7 @@ void addStudent() {
 
 	fputs(temp_text, fp); // ³»¿ë »ðÀÔ
 
-	fclose(fp);
+	fclose(fp); 
 
 	readList();
 
