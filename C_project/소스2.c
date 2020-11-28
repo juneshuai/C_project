@@ -44,6 +44,7 @@ int main(void) {
 			exit(0);
 			break;
 		}
+		init();
 	}
 
 	return 0;
@@ -52,6 +53,8 @@ int main(void) {
 
 //0. 초기화 연결리스트 성공
 void init() {
+
+	
 	FILE* fp = NULL;
 	errno_t err;
 	err = fopen_s(&fp, "studentlist.txt", "r");
@@ -94,7 +97,10 @@ void init() {
 		ptr->next = NULL;
 		tail = ptr;
 
+		
+
 	}
+	
 	fclose(fp);
 
 }
