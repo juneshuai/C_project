@@ -13,6 +13,7 @@ typedef struct _studentList {
 void init();
 void readList();
 void addStudent();
+void updateStudent();
 
 int main(void) {
 
@@ -39,6 +40,9 @@ int main(void) {
 			break;
 		case 2:
 			addStudent();
+			break;
+		case 3:
+			updateStudent();
 			break;
 		default:
 			exit(0);
@@ -178,3 +182,75 @@ void addStudent() {
 }
 
 
+void updateStudent() {
+
+	FILE *fp = NULL;
+	errno_t err;
+	err = fopen_s(&fp, "studentlist.txt", "w+");
+
+	if (err == 0) {
+		printf("\n파일 열기 성공\n");
+	}
+	else {
+		printf("\n파일 열기 실패\n");
+	}
+
+	studentList *head, *tail;
+	studentList *ptr;
+
+	head = tail = NULL;
+	studentList *dummy = (studentList *)malloc(sizeof(studentList));
+	head = dummy;
+	tail = dummy;
+	while (!feof(fp)) {
+		ptr = (studentList *)malloc(sizeof(studentList));
+		if (ptr == NULL)
+		{
+			printf("메모리 할당오류! \n");
+			exit(1);
+		}
+
+		fscanf_s(fp, "%s %d", ptr->name, sizeof(ptr->name), &ptr->id, sizeof(ptr->id));
+		//printf("%s %d ", ptr->name, ptr->id);
+
+		fscanf_s(fp, "%s %s", ptr->major, sizeof(ptr->major), ptr->grade, sizeof(ptr->grade)); //저도 왜이렇게 써야하는지 모르겠는데 fscanf_s가 2개만 인자를 받네요;;
+		//printf("%s %s ", ptr->major, ptr->grade);
+
+		fscanf_s(fp, "%f", &ptr->score, sizeof(ptr->score));
+		//printf("%0.1f", ptr->score);
+
+		//printf("\n\n");
+
+		tail->next = ptr;
+
+		ptr->next = NULL;
+		tail = ptr;
+
+
+
+	}
+	ptr = head->next;
+	char stName[100];
+
+	printf("갱신하고 싶은 학생 이름은?");
+	scanf_s("%s", stName, sizeof(stName));
+
+	while (ptr) {
+		if (!strcmp(ptr->name, stName)) {
+			printf("리스트에서 data \"%s\"을 찾았습니다.\n", stName);
+			break;
+
+		}
+		ptr = ptr->next;
+		if (ptr == NULL) {
+			printf("데이터 \"%s\"이(가) 리스트에 존재하지 않습니다.\n", stName);
+			break;
+		}
+	}
+
+
+
+	fclose(fp);
+
+
+}
