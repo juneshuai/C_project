@@ -186,7 +186,7 @@ void updateStudent() {
 
 	FILE *fp = NULL;
 	errno_t err;
-	err = fopen_s(&fp, "studentlist.txt", "w+");
+	err = fopen_s(&fp, "studentlist.txt", "r+t"); // 이 모드로 해야지 읽고 수정 가능
 
 	if (err == 0) {
 		printf("\n파일 열기 성공\n");
@@ -231,13 +231,23 @@ void updateStudent() {
 	}
 	ptr = head->next;
 	char stName[100];
-
+	int find_pos;
+	char temp[256], *p;
 	printf("갱신하고 싶은 학생 이름은?");
 	scanf_s("%s", stName, sizeof(stName));
 
 	while (ptr) {
-		if (!strcmp(ptr->name, stName)) {
+		if (strcmp(ptr->name, stName)==0) {
 			printf("리스트에서 data \"%s\"을 찾았습니다.\n", stName);
+			/*printf("\n==========================================\n");
+			printf("이름\t학번\t학과\t학점\t평점\n");
+			printf("==========================================\n");
+			printf("%s %d %s %s %.1f\n", ptr->name, ptr->id, ptr->major, ptr->grade, ptr->score);
+			printf("%s 학생의 새로운 정보 (학번 학과 학점 평점)를 입력하세요 :", stName);
+			*/
+			
+			
+
 			break;
 
 		}
