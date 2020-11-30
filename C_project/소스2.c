@@ -16,6 +16,7 @@ void init();
 void readList();
 void addStudent();
 void updateStudent();
+void seaching_Student_Date();
 
 int main(void) {
 
@@ -46,6 +47,10 @@ int main(void) {
 		case 3:
 			updateStudent();
 			break;
+
+		case 5:
+			seaching_Student_Date();
+			break;
 		default:
 			exit(0);
 			break;
@@ -60,7 +65,7 @@ int main(void) {
 //0. 초기화 연결리스트 성공
 void init() {
 
-	
+
 	FILE* fp = NULL;
 	errno_t err;
 	err = fopen_s(&fp, "studentlist.txt", "r");
@@ -103,10 +108,10 @@ void init() {
 		ptr->next = NULL;
 		tail = ptr;
 
-		
+
 
 	}
-	
+
 	fclose(fp);
 
 }
@@ -175,18 +180,103 @@ void addStudent() {
 
 	fputs(temp_text, fp); // 내용 삽입
 
-	fclose(fp); 
+	fclose(fp);
 
 	readList();
 
-	 
+
 
 }
+void seaching_Student_Date() {
 
+	FILE* fp = NULL;
+	errno_t err;
+	err = fopen_s(&fp, "studentlist.txt", "r");
+
+	if (err == 0) {
+		printf("\n파일 열기 성공\n");
+	}
+	else {
+		printf("\n파일 열기 실패\n");
+	}
+
+	studentList* head, * tail;
+	studentList* ptr;
+
+	head = tail = NULL;
+	studentList* dummy = (studentList*)malloc(sizeof(studentList));
+	head = dummy;
+	tail = dummy;
+
+	while (!feof(fp)) {
+		ptr = (studentList*)malloc(sizeof(studentList));
+		if (ptr == NULL)
+		{
+			printf("메모리 할당오류! \n");
+			exit(1);
+		}
+
+		fscanf_s(fp, "%s %d", ptr->name, sizeof(ptr->name), &ptr->id, sizeof(ptr->id));
+		fscanf_s(fp, "%s %s", ptr->major, sizeof(ptr->major), ptr->grade, sizeof(ptr->grade));
+		fscanf_s(fp, "%f", &ptr->score, sizeof(ptr->score));
+
+		tail->next = ptr;
+
+		ptr->next = NULL;
+		tail = ptr;
+
+
+
+	}
+	ptr = head->next;
+	char stName[100];
+	int find_pos;
+	char * p;
+	int searched_Student=0;
+
+
+	printf("검색하고 싶은 학생 이름은?");
+
+	scanf_s("%s", stName, sizeof(stName));
+
+	printf("\n==========================================\n");
+	printf("이름\t학번\t학과\t학점\t평점\n");
+	printf("==========================================\n");
+
+	while (ptr) {
+		if (strcmp(ptr->name, stName) == 0) {
+	
+			
+			if (searched_Student == 0) {
+
+			
+			}
+			searched_Student++;
+			printf("%s %d %s %s %.1f\n", ptr->name, ptr->id, ptr->major, ptr->grade, ptr->score);
+			
+	
+	
+
+		}
+		ptr = ptr->next;
+		if (ptr == NULL) {
+			if (searched_Student == 0) {
+				printf("==========================================\n");
+				printf("%s(이)라는 학생은 없습니다.\n", stName);
+			}
+			else {
+				printf("==========================================\n");
+				printf("총 %d명의 학생을 찾았습니다.\n\n", searched_Student);
+			}
+			break;
+		}
+	}
+	fclose(fp);
+}
 
 void updateStudent() {
 
-	FILE *fp = NULL;
+	FILE* fp = NULL;
 	errno_t err;
 	err = fopen_s(&fp, "studentlist.txt", "r+t"); // 이 모드로 해야지 읽고 수정 가능
 
@@ -201,7 +291,7 @@ void updateStudent() {
 
 	fread(temp_text, sizeof(temp_text), sizeof(fp), fp); // 문자열 변수에 내용 복사, 뒷 부분에 쓰레기 값이 들어가는 오류 수정해야함
 
-	printf("%s",temp_text);
+	printf("%s", temp_text);
 	fclose(fp);
 
 
@@ -214,15 +304,15 @@ void updateStudent() {
 		printf("\n파일 열기 실패\n");
 	}
 
-	studentList *head, *tail;
-	studentList *ptr;
+	studentList* head, * tail;
+	studentList* ptr;
 
 	head = tail = NULL;
-	studentList *dummy = (studentList *)malloc(sizeof(studentList));
+	studentList* dummy = (studentList*)malloc(sizeof(studentList));
 	head = dummy;
 	tail = dummy;
 	while (!feof(fp)) {
-		ptr = (studentList *)malloc(sizeof(studentList));
+		ptr = (studentList*)malloc(sizeof(studentList));
 		if (ptr == NULL)
 		{
 			printf("메모리 할당오류! \n");
@@ -251,7 +341,7 @@ void updateStudent() {
 	ptr = head->next;
 	char stName[100];
 	int find_pos;
-	char temp[256], *p;
+	char temp[256], * p;
 	char revised_contents[200];
 
 	char* searched_name;
@@ -272,7 +362,7 @@ void updateStudent() {
 	scanf_s("%s", stName, sizeof(stName));
 
 	while (ptr) {
-		if (strcmp(ptr->name, stName)==0) {
+		if (strcmp(ptr->name, stName) == 0) {
 
 
 			printf("리스트에서 data \"%s\"을 찾았습니다.\n", stName);
@@ -281,22 +371,22 @@ void updateStudent() {
 			printf("==========================================\n");
 			printf("%s %d %s %s %.1f\n", ptr->name, ptr->id, ptr->major, ptr->grade, ptr->score);
 			printf("%s 학생의 새로운 정보 (학번 학과 학점 평점)를 입력하세요 :", stName);
-			
-	
 
 
-			searched_name = & ptr->name;
+
+
+			searched_name = &ptr->name;
 			searched_id = &ptr->id;
-			searched_major= &ptr->major;
+			searched_major = &ptr->major;
 			searched_grade = &ptr->grade;
 			searched_score = &ptr->score;
-			
-			
+
+
 
 			scanf_s("%s %d %s %s %f", &searched_name, &searched_id, &searched_major, &searched_grade, &searched_score);
 
 
-			
+
 			fprintf_s(fp, temp_text);
 
 			printf("%s", temp_text);
