@@ -17,7 +17,11 @@ void readList();
 void addStudent();
 void updateStudent();
 void seaching_Student_Date();
-
+void saveList();
+void deleteStudent();
+void closeProgram();
+int copy(char* exist, char* anew);
+studentList* head = NULL, * tail = NULL;
 int main(void) {
 
 	init();
@@ -47,15 +51,24 @@ int main(void) {
 		case 3:
 			updateStudent();
 			break;
-
+		case 4:
+			deleteStudent();
+			break;
 		case 5:
 			seaching_Student_Date();
 			break;
-		default:
-			exit(0);
+
+		case 6:
+			saveList();
 			break;
+
+		case 7:
+			closeProgram();
+
+		default:
+			printf("잘못 입력하셨습니다.");
 		}
-		/*init();*/
+		init();
 	}
 
 	return 0;
@@ -187,93 +200,8 @@ void addStudent() {
 
 
 }
-void seaching_Student_Date() {
 
-	FILE* fp = NULL;
-	errno_t err;
-	err = fopen_s(&fp, "studentlist.txt", "r");
-
-	if (err == 0) {
-		printf("\n파일 열기 성공\n");
-	}
-	else {
-		printf("\n파일 열기 실패\n");
-	}
-
-	studentList* head, * tail;
-	studentList* ptr;
-
-	head = tail = NULL;
-	studentList* dummy = (studentList*)malloc(sizeof(studentList));
-	head = dummy;
-	tail = dummy;
-
-	while (!feof(fp)) {
-		ptr = (studentList*)malloc(sizeof(studentList));
-		if (ptr == NULL)
-		{
-			printf("메모리 할당오류! \n");
-			exit(1);
-		}
-
-		fscanf_s(fp, "%s %d", ptr->name, sizeof(ptr->name), &ptr->id, sizeof(ptr->id));
-		fscanf_s(fp, "%s %s", ptr->major, sizeof(ptr->major), ptr->grade, sizeof(ptr->grade));
-		fscanf_s(fp, "%f", &ptr->score, sizeof(ptr->score));
-
-		tail->next = ptr;
-
-		ptr->next = NULL;
-		tail = ptr;
-
-
-
-	}
-	ptr = head->next;
-	char stName[100];
-	int find_pos;
-	char * p;
-	int searched_Student=0;
-
-
-	printf("검색하고 싶은 학생 이름은?");
-
-	scanf_s("%s", stName, sizeof(stName));
-
-	printf("\n==========================================\n");
-	printf("이름\t학번\t학과\t학점\t평점\n");
-	printf("==========================================\n");
-
-	while (ptr) {
-		if (strcmp(ptr->name, stName) == 0) {
-	
-			
-			if (searched_Student == 0) {
-
-			
-			}
-			searched_Student++;
-			printf("%s %d %s %s %.1f\n", ptr->name, ptr->id, ptr->major, ptr->grade, ptr->score);
-			
-	
-	
-
-		}
-		ptr = ptr->next;
-		if (ptr == NULL) {
-			if (searched_Student == 0) {
-				printf("==========================================\n");
-				printf("%s(이)라는 학생은 없습니다.\n", stName);
-			}
-			else {
-				printf("==========================================\n");
-				printf("총 %d명의 학생을 찾았습니다.\n\n", searched_Student);
-			}
-			break;
-		}
-	}
-	fclose(fp);
-}
-
+// 3. 갱신
 void updateStudent() {
 
 	FILE* fp = NULL;
@@ -335,18 +263,18 @@ void updateStudent() {
 	char change_grade[5];
 	float change_score;
 	printf("갱신하고 싶은 학생 이름은?");
-	
+
 	scanf_s("%s", stName, sizeof(stName));
-	if (err == 0) 
+	if (err == 0)
 	{
 		while (ptr)
 		{
 			while (fgets(temp, 256, fp) != NULL) //temp에 값잘들어가요
 			{
-				printf("\n강호동 전에 : %d\n",ftell(fp));
-				printf("strlen확인 : %d\n",  strlen(temp));
-			
-				if (strcmp(ptr->name, stName) == 0) 
+				printf("\n강호동 전에 : %d\n", ftell(fp));
+				printf("strlen확인 : %d\n", strlen(temp));
+
+				if (strcmp(ptr->name, stName) == 0)
 				{
 
 					find_pos = strlen(temp) - 7;
@@ -359,12 +287,12 @@ void updateStudent() {
 					size = ftell(fp);
 					printf("현재 위치 : %d\n\n", size);
 					printf("%s 학생의 새로운 정보 (학번 학과 학점 평점)를 입력하세요 :", stName);
-					
-					
-					
+
+
+
 					scanf_s("%d %s %s %f", &change_num, change_major, sizeof(change_major), change_grade, sizeof(change_grade), &change_score); // 여기서 왜 자동으로 쓰레기값이 들어가는 지 알고 싶네요;;
-					
-					fprintf(fp,"%d %s %s %.1f",change_num, change_major, change_grade, change_score);
+
+					fprintf(fp, "%d %s %s %.1f", change_num, change_major, change_grade, change_score);
 					fflush(fp);
 
 					fseek(fp, 0, SEEK_END);
@@ -374,18 +302,18 @@ void updateStudent() {
 
 				}
 				ptr = ptr->next;
-				
-				if (ptr == NULL) 
+
+				if (ptr == NULL)
 				{
 					printf("데이터 \"%s\"이(가) 리스트에 존재하지 않습니다.\n", stName);
 					break;
 				}
-				
+
 			}
-			
+
 			break;
 		}
-	
+
 	}
 
 
@@ -393,4 +321,206 @@ void updateStudent() {
 	fclose(fp);
 
 
+}
+
+
+// 4. 삭제 
+void deleteStudent() {
+
+		studentList* delete_user = head;
+		studentList* prev_user = NULL;
+
+		FILE* fp = NULL;
+		errno_t err;
+		char str[100];
+		char temp_text[100];
+		err = fopen_s(&fp, "studentlist.txt", "a");
+
+		if (err == 0) {
+			printf("\n파일 열기 성공\n");
+		}
+		else {
+			printf("\n파일 열기 실패\n");
+		}
+
+		char stName[100];
+
+		printf("삭제하고 싶은 학생 이름은 ?");
+		scanf_s("%s", &stName, 100);
+
+		while (delete_user != NULL) {
+			if (delete_user->name == stName) {
+				if (head == delete_user) {
+					if (head->next == NULL)
+						head = tail = NULL;
+					else
+						head = head->next;
+				}
+				else if (tail = delete_user) {
+					prev_user->next = NULL;
+					tail = prev_user;
+				}
+				else {
+					prev_user->next = delete_user->next;
+				}
+				free(delete_user);
+				break;
+			}
+			prev_user = delete_user;
+			delete_user = delete_user->next;
+
+			free(delete_user);
+			delete_user = NULL;
+
+			fclose(fp);
+		}
+
+
+	}
+}
+// 5. 검색
+void seaching_Student_Date() {
+
+	FILE* fp = NULL;
+	errno_t err;
+	err = fopen_s(&fp, "studentlist.txt", "r");
+
+	if (err == 0) {
+		printf("\n파일 열기 성공\n");
+	}
+	else {
+		printf("\n파일 열기 실패\n");
+	}
+
+	studentList* head, * tail;
+	studentList* ptr;
+
+	head = tail = NULL;
+	studentList* dummy = (studentList*)malloc(sizeof(studentList));
+	head = dummy;
+	tail = dummy;
+
+	while (!feof(fp)) {
+		ptr = (studentList*)malloc(sizeof(studentList));
+		if (ptr == NULL)
+		{
+			printf("메모리 할당오류! \n");
+			exit(1);
+		}
+
+		fscanf_s(fp, "%s %d", ptr->name, sizeof(ptr->name), &ptr->id, sizeof(ptr->id));
+		fscanf_s(fp, "%s %s", ptr->major, sizeof(ptr->major), ptr->grade, sizeof(ptr->grade));
+		fscanf_s(fp, "%f", &ptr->score, sizeof(ptr->score));
+
+		tail->next = ptr;
+
+		ptr->next = NULL;
+		tail = ptr;
+
+
+
+	}
+	ptr = head->next;
+	char stName[100];
+	int find_pos;
+	char* p;
+	int searched_Student = 0;
+
+
+	printf("검색하고 싶은 학생 이름은?");
+
+	scanf_s("%s", stName, sizeof(stName));
+
+	printf("\n==========================================\n");
+	printf("이름\t학번\t학과\t학점\t평점\n");
+	printf("==========================================\n");
+
+	while (ptr) {
+		if (strcmp(ptr->name, stName) == 0) {
+
+
+			if (searched_Student == 0) {
+
+
+			}
+			searched_Student++;
+			printf("%s %d %s %s %.1f\n", ptr->name, ptr->id, ptr->major, ptr->grade, ptr->score);
+
+
+		}
+		ptr = ptr->next;
+		if (ptr == NULL) {
+			if (searched_Student == 0) {
+				printf("==========================================\n");
+				printf("%s(이)라는 학생은 없습니다.\n", stName);
+			}
+			else {
+				printf("==========================================\n");
+				printf("총 %d명의 학생을 찾았습니다.\n\n", searched_Student);
+			}
+			break;
+		}
+	}
+	fclose(fp);
+}
+
+
+// 6. 저장
+void saveList() {
+
+	FILE* fp = NULL;
+	errno_t err;
+	err = fopen_s(&fp, "studentlist.txt", "w");
+
+	/*FILE* fpnew = NULL;
+	errno_t err2;
+	err2 = fopen_s(&fpnew, "newStudentList.txt", "w");
+
+	char target = fpnew;
+	char scr = fp;
+	if (copy(scr, target) == 0) {
+
+		printf("성공");*/
+
+
+	int cnt = 0; //라인 갯수세기
+	char str[100];
+
+	while (!feof(fp)) {
+		fgets(str, 100, fp);
+		cnt++;
+	}
+	printf("\n");
+	printf("==========================================\n");
+	printf("총 %d명의 학생정보를 저장하였습니다 \n", cnt);
+}
+
+int copy(char* exist, char* anew)
+{
+	FILE* fexist, * fanew;
+	int a;
+	if ((fexist = fopen(exist, "rb")) == NULL)
+		return -1;
+	if ((fanew = fopen(anew, "wb")) == NULL) {
+		fclose(fexist);
+		return -1;
+	}
+
+	while (1) {
+		a = fgetc(fexist);
+
+		if (!feof(fexist))
+			fputc(a, fanew);
+		else
+			break;
+	}
+	fclose(fexist);
+	fclose(fanew);
+	return(0);
+}
+
+// 7. 종료
+void closeProgram() {
+	printf("\n프로그램이 종료되었습니다.\n\n");
+	exit(0);
 }
