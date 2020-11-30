@@ -344,12 +344,12 @@ void updateStudent() {
 			while (fgets(temp, 256, fp) != NULL) //temp에 값잘들어가요
 			{
 				printf("\n강호동 전에 : %d\n",ftell(fp));
-				printf("strlen확인 : %d",  strlen(temp));
+				printf("strlen확인 : %d\n",  strlen(temp));
 			
 				if (strcmp(ptr->name, stName) == 0) 
 				{
 
-					find_pos = strlen(temp) - 6;
+					find_pos = strlen(temp) - 7;
 					fseek(fp, (-1) * find_pos, SEEK_CUR); // 이름 앞까지 커서 옮겨서 수정해버리려고 사용했어요
 					printf("리스트에서 data \"%s\"을 찾았습니다.\n", stName);
 					printf("\n==========================================\n");
