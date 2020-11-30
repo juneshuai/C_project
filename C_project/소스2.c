@@ -7,7 +7,7 @@ typedef struct _studentList {
 	char name[10]; //이름
 	int id; //학번
 	char major[20]; //학과
-	char grade[4]; // 학점
+	char grade[6]; // 학점
 	float score; //평점
 	struct _studentList* next;
 }studentList;
@@ -55,7 +55,7 @@ int main(void) {
 			exit(0);
 			break;
 		}
-		init();
+		/*init();*/
 	}
 
 	return 0;
@@ -278,22 +278,6 @@ void updateStudent() {
 
 	FILE* fp = NULL;
 	errno_t err;
-	err = fopen_s(&fp, "studentlist.txt", "r+t"); // 이 모드로 해야지 읽고 수정 가능
-
-	char temp_text[500]; // 수정되기 전의 데이터가 들어감
-
-	if (err == 0) {
-		printf("\n파일 열기 성공\n");
-	}
-	else {
-		printf("\n파일 열기 실패\n");
-	}
-
-	fread(temp_text, sizeof(temp_text), sizeof(fp), fp); // 문자열 변수에 내용 복사, 뒷 부분에 쓰레기 값이 들어가는 오류 수정해야함
-
-	printf("%s", temp_text);
-	fclose(fp);
-
 
 	err = fopen_s(&fp, "studentlist.txt", "r+t"); // 이 모드로 해야지 읽고 수정 가능
 
@@ -338,67 +322,70 @@ void updateStudent() {
 
 
 	}
+	rewind(fp);
 	ptr = head->next;
-	char stName[100];
+	int size;
+	size = ftell(fp);
+	printf("현재 커서 위치 : %d\n", size);
+	char stName[10];
+	char temp[256];
 	int find_pos;
-	char temp[256], * p;
-	char revised_contents[200];
-
-	char* searched_name;
-	int* searched_id;
-	char* searched_major;
-	char* searched_grade;
-	float* searched_score;
-
-	char* captured_name;
-	int captured_id[20];
-	char captured_major[20];
-	char captured_grade[20];
-	float captured_score;
-
-
+	int change_num;
+	char change_major[20];
+	char change_grade[5];
+	float change_score;
 	printf("갱신하고 싶은 학생 이름은?");
-	gets(stName);
+	
 	scanf_s("%s", stName, sizeof(stName));
+	if (err == 0) 
+	{
+		while (ptr)
+		{
+			while (fgets(temp, 256, fp) != NULL) //temp에 값잘들어가요
+			{
+				printf("\n강호동 전에 : %d\n",ftell(fp));
+				printf("strlen확인 : %d",  strlen(temp));
+			
+				if (strcmp(ptr->name, stName) == 0) 
+				{
 
-	while (ptr) {
-		if (strcmp(ptr->name, stName) == 0) {
+					find_pos = strlen(temp) - 6;
+					fseek(fp, (-1) * find_pos, SEEK_CUR); // 이름 앞까지 커서 옮겨서 수정해버리려고 사용했어요
+					printf("리스트에서 data \"%s\"을 찾았습니다.\n", stName);
+					printf("\n==========================================\n");
+					printf("이름\t학번\t학과\t학점\t평점\n");
+					printf("==========================================\n");
+					printf("%s %d %s %s %.1f\n", ptr->name, ptr->id, ptr->major, ptr->grade, ptr->score);
+					size = ftell(fp);
+					printf("현재 위치 : %d\n\n", size);
+					printf("%s 학생의 새로운 정보 (학번 학과 학점 평점)를 입력하세요 :", stName);
+					
+					
+					
+					scanf_s("%d %s %s %f", &change_num, change_major, sizeof(change_major), change_grade, sizeof(change_grade), &change_score); // 여기서 왜 자동으로 쓰레기값이 들어가는 지 알고 싶네요;;
+					
+					fprintf(fp,"%d %s %s %.1f",change_num, change_major, change_grade, change_score);
+					fflush(fp);
+
+					fseek(fp, 0, SEEK_END);
 
 
-			printf("리스트에서 data \"%s\"을 찾았습니다.\n", stName);
-			printf("\n==========================================\n");
-			printf("이름\t학번\t학과\t학점\t평점\n");
-			printf("==========================================\n");
-			printf("%s %d %s %s %.1f\n", ptr->name, ptr->id, ptr->major, ptr->grade, ptr->score);
-			printf("%s 학생의 새로운 정보 (학번 학과 학점 평점)를 입력하세요 :", stName);
+					break;
 
-
-
-
-			searched_name = &ptr->name;
-			searched_id = &ptr->id;
-			searched_major = &ptr->major;
-			searched_grade = &ptr->grade;
-			searched_score = &ptr->score;
-
-
-
-			scanf_s("%s %d %s %s %f", &searched_name, &searched_id, &searched_major, &searched_grade, &searched_score);
-
-
-
-			fprintf_s(fp, temp_text);
-
-			printf("%s", temp_text);
-
+				}
+				ptr = ptr->next;
+				
+				if (ptr == NULL) 
+				{
+					printf("데이터 \"%s\"이(가) 리스트에 존재하지 않습니다.\n", stName);
+					break;
+				}
+				
+			}
+			
 			break;
-
 		}
-		ptr = ptr->next;
-		if (ptr == NULL) {
-			printf("데이터 \"%s\"이(가) 리스트에 존재하지 않습니다.\n", stName);
-			break;
-		}
+	
 	}
 
 
