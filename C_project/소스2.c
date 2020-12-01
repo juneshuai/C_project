@@ -27,7 +27,7 @@ int main(void) {
 
 	init();
 	int num;
-
+	
 
 	while (1) {
 		printf("\n================\n");
@@ -69,7 +69,7 @@ int main(void) {
 		default:
 			printf("잘못 입력하셨습니다.");
 		}
-		init();
+		
 	}
 
 	return 0;
@@ -90,7 +90,7 @@ void init() {
 	else {
 		printf("\n파일 열기 실패\n");
 	}
-
+	
 	studentList* head, * tail;
 	studentList* ptr;
 
@@ -377,7 +377,8 @@ void deleteStudent() {
 	ptr = head->next;
 	char stName[10];
 	char temp[256];
-	long seek, start;
+	long start=0, seek;
+
 	printf("삭제하고 싶은 학생 이름은?");
 
 	scanf_s("%s", stName, sizeof(stName));
@@ -392,28 +393,34 @@ void deleteStudent() {
 				//rewind(fp);
 				
 			while (ptr) {
+				
+				
 				while (fgets(temp, 256, fp) != NULL) {
-					seek = ftell(fp);
+						
 					//printf("\n현재 위치 : %d\n", seek);
+					if (strstr(temp, stName) == NULL) {
+						start = ftell(fp);
+					}
 					if (strcmp(stName, ptr->name) == 0) {
-						if (strstr(temp, ptr->name) != NULL)
-						start = seek;
-						ptr = ptr->next;
+						seek = ftell(fp);
+						
 						if (fgets(temp, 256, fp) != NULL)
-						if (strstr(temp, ptr->name) != NULL)
 						{
-							long len = _filelength(_fileno(fp)) - ftell(fp);
+							long len = _filelength(_fileno(fp)) - seek;
 							printf("len 크기 : %d\n", len);
 
 							char *tmp = (char *)malloc(len);
-
 							len = fread(tmp, 1, len, fp);
-
+							fgets(tmp, len, fp); // 유재석 담기
+							
+							/*printf("tmp : %s\n\n", tmp);
+							printf("len : %ld\n\n\n",len);*/
 							fseek(fp, start, SEEK_SET);
 							fwrite(tmp, 1, len, fp);
 							fflush(fp);
 							free(tmp);
-							_chsize(_fileno(fp), ftell(fp));
+							
+							_chsize(_fileno(fp), _filelength(_fileno(fp))-(seek-start+1));
 							break;
 						}
 
@@ -427,7 +434,7 @@ void deleteStudent() {
 			while (fgets(temp, 256, fp) != NULL) printf(temp);
 			break;
 		
-		}
+			}
 	}
 	else {
 		printf("파일을 열 수 없습니다!!\n");
