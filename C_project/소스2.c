@@ -3,6 +3,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
+#include<io.h>
 typedef struct _studentList {
 	char name[10]; //이름
 	int id; //학번
@@ -326,58 +327,118 @@ void updateStudent() {
 
 // 4. 삭제 
 void deleteStudent() {
+	FILE *fp = NULL;
+	errno_t err;
 
-		studentList* delete_user = head;
-		studentList* prev_user = NULL;
+	err = fopen_s(&fp, "studentlist.txt", "r+t"); // 이 모드로 해야지 읽고 수정 가능
 
-		FILE* fp = NULL;
-		errno_t err;
-		char str[100];
-		char temp_text[100];
-		err = fopen_s(&fp, "studentlist.txt", "a");
+	if (err == 0) {
+		printf("\n파일 열기 성공\n");
+	}
+	else {
+		printf("\n파일 열기 실패\n");
+	}
 
-		if (err == 0) {
-			printf("\n파일 열기 성공\n");
+	studentList *head, *tail;
+	studentList *ptr;
+
+	head = tail = NULL;
+	studentList *dummy = (studentList *)malloc(sizeof(studentList));
+	head = dummy;
+	tail = dummy;
+	while (!feof(fp)) {
+		ptr = (studentList *)malloc(sizeof(studentList));
+		if (ptr == NULL)
+		{
+			printf("메모리 할당오류! \n");
+			exit(1);
 		}
-		else {
-			printf("\n파일 열기 실패\n");
-		}
 
-		char stName[100];
+		fscanf_s(fp, "%s %d", ptr->name, sizeof(ptr->name), &ptr->id, sizeof(ptr->id));
+		//printf("%s %d ", ptr->name, ptr->id);
 
-		printf("삭제하고 싶은 학생 이름은 ?");
-		scanf_s("%s", &stName, 100);
+		fscanf_s(fp, "%s %s", ptr->major, sizeof(ptr->major), ptr->grade, sizeof(ptr->grade)); //저도 왜이렇게 써야하는지 모르겠는데 fscanf_s가 2개만 인자를 받네요;;
+		//printf("%s %s ", ptr->major, ptr->grade);
 
-		while (delete_user != NULL) {
-			if (delete_user->name == stName) {
-				if (head == delete_user) {
-					if (head->next == NULL)
-						head = tail = NULL;
-					else
-						head = head->next;
-				}
-				else if (tail = delete_user) {
-					prev_user->next = NULL;
-					tail = prev_user;
-				}
-				else {
-					prev_user->next = delete_user->next;
-				}
-				free(delete_user);
-				break;
-			}
-			prev_user = delete_user;
-			delete_user = delete_user->next;
+		fscanf_s(fp, "%f", &ptr->score, sizeof(ptr->score));
+		//printf("%0.1f", ptr->score);
 
-			free(delete_user);
-			delete_user = NULL;
+		//printf("\n\n");
 
-			fclose(fp);
-		}
+		tail->next = ptr;
+
+		ptr->next = NULL;
+		tail = ptr;
+
 
 
 	}
+	rewind(fp);
+	ptr = head->next;
+	char stName[10];
+	char temp[256];
+	long seek, start;
+	printf("삭제하고 싶은 학생 이름은?");
+
+	scanf_s("%s", stName, sizeof(stName));
+	
+	
+	if (err == 0) {
+		
+			
+				
+				//printf("[ 변경 전의 파일 내용입니다. ]\n");
+				//while (fgets(buf, 256, fp) != NULL)printf(buf);
+				//rewind(fp);
+				
+			while (ptr) {
+				while (fgets(temp, 256, fp) != NULL) {
+					seek = ftell(fp);
+					//printf("\n현재 위치 : %d\n", seek);
+					if (strcmp(stName, ptr->name) == 0) {
+						if (strstr(temp, ptr->name) != NULL)
+						start = seek;
+						ptr = ptr->next;
+						if (fgets(temp, 256, fp) != NULL)
+						if (strstr(temp, ptr->name) != NULL)
+						{
+							long len = _filelength(_fileno(fp)) - ftell(fp);
+							printf("len 크기 : %d\n", len);
+
+							char *tmp = (char *)malloc(len);
+
+							len = fread(tmp, 1, len, fp);
+
+							fseek(fp, start, SEEK_SET);
+							fwrite(tmp, 1, len, fp);
+							fflush(fp);
+							free(tmp);
+							_chsize(_fileno(fp), ftell(fp));
+							break;
+						}
+
+					}
+					ptr = ptr->next;
+				}
+				
+			
+			rewind(fp);
+			printf("\n[ 변경 후의 파일 내용입니다. ]\n");
+			while (fgets(temp, 256, fp) != NULL) printf(temp);
+			break;
+		
+		}
+	}
+	else {
+		printf("파일을 열 수 없습니다!!\n");
+	}
+	fclose(fp);
+	return 0;
+
+
+		
 }
+
 // 5. 검색
 void seaching_Student_Date() {
 
